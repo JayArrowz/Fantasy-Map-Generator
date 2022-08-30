@@ -1490,12 +1490,12 @@ function defineBiomes() {
     12,//"Desert",3
     2,//"Oasis",4
     8,//"Snow",5
-    -1,//"Glacier",6
+    2,//"Glacier",6
     8,//"Swamp",7
     5, //"Badlands",8
-    -1, //"Beach",9
+    12, //"Beach",9
     5,//"Stone",10
-    1,//"The Void",11
+    2,//"The Void",11
     1,//"Moon Touched",12
     1,//"Forbidden Forests",13
   ];
@@ -1509,15 +1509,15 @@ function defineBiomes() {
    
     if(isOcean) {
       oceanBiome += 1;
-    } else if (temperature < -5) {
-     // biomeId = 6; // permafrost glacier biome
-    }  else if (isWetLand(moisture, temperature, height)) { 
-      //biomeId = 9; // beach biome
     } else {
       cellCount += 1;
     }
   }
-  let biomeCount = [0,0,0,0,0,0,0,0,0,0,0,0,0];
+  
+  let biomeCount = [];
+  for(let i = 0; i < biomePercentages.length; i++) {
+    biomeCount.push(0);
+  }
   for(let i = 1; i < biomeCount.length; i++) {
     biomeCount[i] = Math.round((biomePercentages[i] / 100) * cellCount);
   }
@@ -1531,9 +1531,9 @@ function defineBiomes() {
 
     if(isOcean) {
       biomeId = 0;
-    } else if (temperature < -5) {
+    } else if (temperature < -5 && biomeCount[6] > 0) {
       biomeId = 6; // permafrost glacier biome
-    }  else if (isWetLand(moisture, temperature, height)) { 
+    }  else if (isWetLand(moisture, temperature, height) && biomeCount[9] > 0) { 
       biomeId = 9; // beach biome
     }
 
@@ -1551,9 +1551,9 @@ function defineBiomes() {
         }
       }
       biomeId = availableBiomes[Math.floor(Math.random() * availableBiomes.length)];
-      biomeCount[biomeId] -= 1;
     }
 
+    biomeCount[biomeId] -= 1;
     cells.biome[i] = biomeId;
   }
 
