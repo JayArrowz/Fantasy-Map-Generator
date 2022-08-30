@@ -408,22 +408,39 @@ function findBurgForMFCG(params) {
 function applyDefaultBiomesSystem() {
   const name = [
     "Marine",
-    "Hot desert",
-    "Cold desert",
-    "Savanna",
-    "Grassland",
-    "Tropical seasonal forest",
-    "Temperate deciduous forest",
-    "Tropical rainforest",
-    "Temperate rainforest",
-    "Taiga",
-    "Tundra",
+    "Plains",
+    "Forest",
+    "Desert",
+    "Oasis",
+    "Snow",
     "Glacier",
-    "Wetland"
+    "Swamp",
+    "Badlands",
+    "Beach",
+    "Stone",
+    "The Void",
+    "Moon Touched",
+    "Forbidden Forests"
   ];
-  const color = ["#466eab", "#fbe79f", "#b5b887", "#d2d082", "#c8d68f", "#b6d95d", "#29bc56", "#7dcb35", "#409c43", "#4b6b32", "#96784b", "#d5e7eb", "#0b9131"];
-  const habitability = [0, 4, 10, 22, 30, 50, 100, 80, 90, 12, 4, 0, 12];
-  const iconsDensity = [0, 3, 2, 120, 120, 120, 120, 150, 150, 100, 5, 0, 150];
+  const color = [
+    "#466eab",
+    "#E1FFCB",
+    "#516c24",
+    "#FBFFCB",
+    "#f5ff7f",
+    "#E7F9F0",
+    "#ffffff",
+    "#18200A",
+    "#743D20",
+    "#e7f9f0",
+    "#5c6360",
+    "#171818",
+    "#F945C0",
+    "#05190a"
+  ];
+
+  const habitability = [0, 4, 10, 22, 30, 50, 100, 80, 90, 12, 4, 0, 12, 0];
+  const iconsDensity = [0, 3, 2, 120, 120, 120, 120, 150, 150, 100, 5, 0, 150, 0];
   const icons = [
     {},
     {dune: 3, cactus: 6, deadTree: 1},
@@ -437,16 +454,17 @@ function applyDefaultBiomesSystem() {
     {conifer: 1},
     {grass: 1},
     {},
-    {swamp: 1}
+    {swamp: 1},
+    {swamp: 1},
   ];
-  const cost = [10, 200, 150, 60, 50, 70, 70, 80, 90, 200, 1000, 5000, 150]; // biome movement cost
+  const cost = [10, 200, 150, 60, 50, 70, 70, 80, 90, 200, 1000, 5000, 150, 10]; // biome movement cost
   const biomesMartix = [
     // hot ↔ cold [>19°C; <-4°C]; dry ↕ wet
-    new Uint8Array([1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 10]),
-    new Uint8Array([3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 9, 9, 9, 9, 10, 10, 10]),
-    new Uint8Array([5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 9, 9, 9, 9, 9, 10, 10, 10]),
-    new Uint8Array([5, 6, 6, 6, 6, 6, 6, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 10, 10, 10]),
-    new Uint8Array([7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 10, 10])
+    new Uint8Array([1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 10]),
+    new Uint8Array([3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 9, 9, 9, 9, 9, 10, 10, 10]),
+    new Uint8Array([5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 9, 9, 9, 9, 9, 9, 10, 10, 10]),
+    new Uint8Array([5, 6, 6, 6, 6, 6, 6, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 10, 10, 10]),
+    new Uint8Array([7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 10, 10])
   ];
 
   // parse icons weighted array into a simple array
@@ -1445,11 +1463,98 @@ function defineBiomes() {
   const {temp, prec} = grid.cells;
   cells.biome = new Uint8Array(cells.i.length); // biomes array
 
+  /**
+   * 
+  const name = [
+    "Marine",
+    "Plains",
+    "Forest",
+    "Desert",
+    "Oasis",
+    "Snow",
+    "Glacier",
+    "Swamp",
+    "Badlands",
+    "Beach",
+    "Stone",
+    "The Void",
+    "Moon Touched",
+    "Forbidden Forests"
+  ];
+   */
+
+  const biomePercentages = [
+    -1, //"Marine",0
+    30, //"Plains",1
+    12, //"Forest",2
+    12,//"Desert",3
+    2,//"Oasis",4
+    8,//"Snow",5
+    -1,//"Glacier",6
+    8,//"Swamp",7
+    5, //"Badlands",8
+    -1, //"Beach",9
+    5,//"Stone",10
+    1,//"The Void",11
+    1,//"Moon Touched",12
+    1,//"Forbidden Forests",13
+  ];
+  let oceanBiome = 0;
+  let cellCount = 0;
+
+  for (const i of cells.i) {
+    const height = cells.h[i];
+    const moisture = height < 20 ? 0 : calculateMoisture(i);
+    const isOcean = height < 20;
+   
+    if(isOcean) {
+      oceanBiome += 1;
+    } else if (temperature < -5) {
+     // biomeId = 6; // permafrost glacier biome
+    }  else if (isWetLand(moisture, temperature, height)) { 
+      //biomeId = 9; // beach biome
+    } else {
+      cellCount += 1;
+    }
+  }
+  let biomeCount = [0,0,0,0,0,0,0,0,0,0,0,0,0];
+  for(let i = 1; i < biomeCount.length; i++) {
+    biomeCount[i] = Math.round((biomePercentages[i] / 100) * cellCount);
+  }
+
   for (const i of cells.i) {
     const temperature = temp[cells.g[i]];
     const height = cells.h[i];
     const moisture = height < 20 ? 0 : calculateMoisture(i);
-    cells.biome[i] = getBiomeId(moisture, temperature, height);
+    const isOcean = height < 20;
+    let biomeId = -1;
+
+    if(isOcean) {
+      biomeId = 0;
+    } else if (temperature < -5) {
+      biomeId = 6; // permafrost glacier biome
+    }  else if (isWetLand(moisture, temperature, height)) { 
+      biomeId = 9; // beach biome
+    }
+
+    if(biomeId === -1) {      
+      let availableBiomes = []
+      for(let i = 1; i < biomeCount.length; i++) {
+          if(biomeCount[i] > 0) {
+            availableBiomes.push(i);
+          }
+      }
+
+      if(availableBiomes.length == 0) {
+        for(let i = 1; i < biomeCount.length; i++) {            
+          availableBiomes.push(i);
+        }
+      }
+      biomeId = availableBiomes[Math.floor(Math.random() * availableBiomes.length)];
+      biomeCount[biomeId] -= 1;
+    }
+
+    cells.biome[i] = biomeId;
   }
 
   function calculateMoisture(i) {
@@ -1469,8 +1574,8 @@ function defineBiomes() {
 // assign biome id to a cell
 function getBiomeId(moisture, temperature, height) {
   if (height < 20) return 0; // marine biome: all water cells
-  if (temperature < -5) return 11; // permafrost biome
-  if (isWetLand(moisture, temperature, height)) return 12; // wetland biome
+  if (temperature < -5) return 6; // permafrost glacier biome
+  if (isWetLand(moisture, temperature, height)) return 9; // beach biome
 
   const moistureBand = Math.min((moisture / 5) | 0, 4); // [0-4]
   const temperatureBand = Math.min(Math.max(20 - temperature, 0), 25); // [0-25]

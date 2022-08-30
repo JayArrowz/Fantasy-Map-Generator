@@ -392,6 +392,66 @@ function inlineStyle(clone) {
   emptyG.remove();
 }
 
+function saveAllCoords() {
+  // const cells = pack.cells;
+  // const cellObjects = [];
+  // cells.i.forEach(i => {
+  //   const cellCoords = getCellCoordinates(cells.v[i]);
+  //   if(cellCoords.length > 1) {
+  //     throw Error("Cell " + i + " has more than one polygon");
+  //   }
+  //   const coordinates = cellCoords[0].map(t => [rn(t[0], 4), rn(t[1], 4)]);
+  //   cellObjects.push({
+  //     id: i,
+  //     polygonCoords: coordinates,
+  //   });
+  // });
+  let objs = {
+    features: [],
+    objs: []
+  }
+  for(let x = 0; x <= 2048; x++) {
+    for(let y = 0; y <= 1024; y++) {
+      const i = findCell(x, y); // pack cell id
+      const xy = [rn(x) * 4, rn(y) * 4];
+      if (i === undefined) continue;
+
+      try {
+        const gridCell = findGridCell(x, y, grid);
+        const obj = getInfo([x,y], i, gridCell);
+        
+        if(!objs.features.find(t => t.cell === obj.cell)) {
+          objs.features.push(obj);
+        }
+
+        if(obj) {
+          objs.objs.push({
+            xy: xy,
+            cell: obj.cell
+          });
+        }
+      } catch(error) {
+        console.log(error);
+      }
+    }
+  }
+  //new Blob()
+  // let str = "[";
+  // for(let i = 0; i < objs.length; i++) {
+  //   try {
+  //     str = str+JSON.stringify(objs[i]) + ",";
+  //   } catch(error) {
+  //     console.log(error);
+  //     console.log(objs[i]);
+  //     throw error;
+  //   }
+  // }
+  // str = str + "]";
+  
+  //console.log("COMPLETED");
+  downloadFile(JSON.stringify(objs), "t.json", "application/json");
+}
+
 function saveGeoJSON_Cells() {
   const json = {type: "FeatureCollection", features: []};
   const cells = pack.cells;
