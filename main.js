@@ -32,7 +32,7 @@ if (PRODUCTION && "serviceWorker" in navigator) {
       const Installation = await import("./modules/dynamic/installation.js");
       Installation.init(event);
     },
-    {once: true}
+    { once: true }
   );
 }
 
@@ -149,7 +149,7 @@ let viewX = 0;
 let viewY = 0;
 
 function onZoom() {
-  const {k, x, y} = d3.event.transform;
+  const { k, x, y } = d3.event.transform;
 
   const isScaleChanged = Boolean(scale - k);
   const isPositionChanged = Boolean(viewX - x || viewY - y);
@@ -202,7 +202,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       resizable: false,
       title: "Loading error",
       width: "28em",
-      position: {my: "center center-4em", at: "center", of: "svg"},
+      position: { my: "center center-4em", at: "center", of: "svg" },
       buttons: {
         OK: function () {
           $(this).dialog("close");
@@ -329,7 +329,7 @@ function focusOn() {
       const burg = isNaN(+burgParam) ? pack.burgs.find(burg => burg.name === burgParam) : pack.burgs[+burgParam];
       if (!burg) return;
 
-      const {x, y} = burg;
+      const { x, y } = burg;
       zoomTo(x, y, scale, 1600);
       return;
     }
@@ -443,19 +443,19 @@ function applyDefaultBiomesSystem() {
   const iconsDensity = [0, 3, 2, 120, 120, 120, 120, 150, 150, 100, 5, 0, 150, 0];
   const icons = [
     {},
-    {dune: 3, cactus: 6, deadTree: 1},
-    {dune: 9, deadTree: 1},
-    {acacia: 1, grass: 9},
-    {grass: 1},
-    {acacia: 8, palm: 1},
-    {deciduous: 1},
-    {acacia: 5, palm: 3, deciduous: 1, swamp: 1},
-    {deciduous: 6, swamp: 1},
-    {conifer: 1},
-    {grass: 1},
+    { dune: 3, cactus: 6, deadTree: 1 },
+    { dune: 9, deadTree: 1 },
+    { acacia: 1, grass: 9 },
+    { grass: 1 },
+    { acacia: 8, palm: 1 },
+    { deciduous: 1 },
+    { acacia: 5, palm: 3, deciduous: 1, swamp: 1 },
+    { deciduous: 6, swamp: 1 },
+    { conifer: 1 },
+    { grass: 1 },
     {},
-    {swamp: 1},
-    {swamp: 1},
+    { swamp: 1 },
+    { swamp: 1 },
   ];
   const cost = [10, 200, 150, 60, 50, 70, 70, 80, 90, 200, 1000, 5000, 150, 10]; // biome movement cost
   const biomesMartix = [
@@ -478,7 +478,7 @@ function applyDefaultBiomesSystem() {
     icons[i] = parsed;
   }
 
-  return {i: d3.range(0, name.length), name, color, biomesMartix, habitability, iconsDensity, icons, cost};
+  return { i: d3.range(0, name.length), name, color, biomesMartix, habitability, iconsDensity, icons, cost };
 }
 
 function handleZoom(isScaleChanged, isPositionChanged) {
@@ -574,7 +574,7 @@ function invokeActiveZooming() {
   // rescale map markers
   +markers.attr("rescale") &&
     pack.markers?.forEach(marker => {
-      const {i, x, y, size = 30, hidden} = marker;
+      const { i, x, y, size = 30, hidden } = marker;
       const el = !hidden && document.getElementById(`marker${i}`);
       if (!el) return;
 
@@ -628,7 +628,7 @@ void (function addDragToUpload() {
       $("#alert").dialog({
         resizable: false,
         title: "Invalid file format",
-        position: {my: "center", at: "center", of: "svg"},
+        position: { my: "center", at: "center", of: "svg" },
         buttons: {
           Close: function () {
             $(this).dialog("close");
@@ -652,7 +652,7 @@ void (function addDragToUpload() {
 async function generate(options) {
   try {
     const timeStart = performance.now();
-    const {seed: precreatedSeed, graph: precreatedGraph} = options || {};
+    const { seed: precreatedSeed, graph: precreatedGraph } = options || {};
 
     invokeActiveZooming();
     setSeed(precreatedSeed);
@@ -734,7 +734,7 @@ async function generate(options) {
           $(this).dialog("close");
         }
       },
-      position: {my: "center", at: "center", of: "svg"}
+      position: { my: "center", at: "center", of: "svg" }
     });
   }
 }
@@ -790,7 +790,7 @@ function markFeatures() {
       });
     }
     const type = land ? "island" : border ? "ocean" : "lake";
-    grid.features.push({i, land, border, type});
+    grid.features.push({ i, land, border, type });
 
     queue[0] = cells.f.findIndex(f => !f); // find unmarked cell
   }
@@ -823,8 +823,8 @@ function markup(cells, start, increment, limit) {
 
 function addLakesInDeepDepressions() {
   TIME && console.time("addLakesInDeepDepressions");
-  const {cells, features} = grid;
-  const {c, h, b} = cells;
+  const { cells, features } = grid;
+  const { c, h, b } = cells;
   const ELEVATION_LIMIT = +document.getElementById("lakeElevationLimitOutput").value;
   if (ELEVATION_LIMIT === 80) return;
 
@@ -874,7 +874,7 @@ function addLakesInDeepDepressions() {
       c[i].forEach(n => !lakeCells.includes(n) && (cells.t[c] = 1));
     });
 
-    features.push({i: f, land: false, border: false, type: "lake"});
+    features.push({ i: f, land: false, border: false, type: "lake" });
   }
 
   TIME && console.timeEnd("addLakesInDeepDepressions");
@@ -987,7 +987,7 @@ function calculateMapCoordinates() {
   const latS = rn(latN - latT, 1);
 
   const lon = rn(Math.min(((graphWidth / graphHeight) * latT) / 2, 180));
-  mapCoordinates = {latT, latN, latS, lonT: lon * 2, lonW: -lon, lonE: lon};
+  mapCoordinates = { latT, latN, latS, lonT: lon * 2, lonW: -lon, lonE: lon };
 }
 
 // temperature model
@@ -1025,7 +1025,7 @@ function calculateTemperatures() {
 function generatePrecipitation() {
   TIME && console.time("generatePrecipitation");
   prec.selectAll("*").remove();
-  const {cells, cellsX, cellsY} = grid;
+  const { cells, cellsX, cellsY } = grid;
   cells.prec = new Uint8Array(cells.i.length); // precipitation array
 
   const cellsNumberModifier = (pointsInput.dataset.cells / 10000) ** 0.25;
@@ -1055,7 +1055,7 @@ function generatePrecipitation() {
     const latBand = ((Math.abs(lat) - 1) / 5) | 0;
     const latMod = latitudeModifier[latBand];
     const windTier = (Math.abs(lat - 89) / 30) | 0; // 30d tiers from 0 to 5 from N to S
-    const {isWest, isEast, isNorth, isSouth} = getWindDirections(windTier);
+    const { isWest, isEast, isNorth, isSouth } = getWindDirections(windTier);
 
     if (isWest) westerly.push([c, latMod, windTier]);
     if (isEast) easterly.push([c + cellsX - 1, latMod, windTier]);
@@ -1090,7 +1090,7 @@ function generatePrecipitation() {
     const isNorth = angle > 100 && angle < 260;
     const isSouth = angle > 280 || angle < 80;
 
-    return {isWest, isEast, isNorth, isSouth};
+    return { isWest, isEast, isNorth, isSouth };
   }
 
   function passWind(source, maxPrec, next, steps) {
@@ -1184,8 +1184,8 @@ function generatePrecipitation() {
 // recalculate Voronoi Graph to pack cells
 function reGraph() {
   TIME && console.time("reGraph");
-  const {cells: gridCells, points, features} = grid;
-  const newCells = {p: [], g: [], h: []}; // store new data
+  const { cells: gridCells, points, features } = grid;
+  const newCells = { p: [], g: [], h: [] }; // store new data
   const spacing2 = grid.spacing ** 2;
 
   for (const i of gridCells.i) {
@@ -1224,14 +1224,14 @@ function reGraph() {
     return Math.min(area, UINT16_MAX);
   }
 
-  const {cells: packCells, vertices} = calculateVoronoi(newCells.p, grid.boundary);
+  const { cells: packCells, vertices } = calculateVoronoi(newCells.p, grid.boundary);
   pack.vertices = vertices;
   pack.cells = packCells;
   pack.cells.p = newCells.p;
-  pack.cells.g = createTypedArray({maxValue: grid.points.length, from: newCells.g});
+  pack.cells.g = createTypedArray({ maxValue: grid.points.length, from: newCells.g });
   pack.cells.q = d3.quadtree(newCells.p.map(([x, y], i) => [x, y, i]));
-  pack.cells.h = createTypedArray({maxValue: 100, from: newCells.h});
-  pack.cells.area = createTypedArray({maxValue: UINT16_MAX, from: pack.cells.i}).map(getCellArea);
+  pack.cells.h = createTypedArray({ maxValue: 100, from: newCells.h });
+  pack.cells.area = createTypedArray({ maxValue: UINT16_MAX, from: pack.cells.i }).map(getCellArea);
 
   TIME && console.timeEnd("reGraph");
 }
@@ -1428,7 +1428,7 @@ function reMarkFeatures() {
     let group;
     if (type === "ocean") group = defineOceanGroup(cellNumber);
     else if (type === "island") group = defineIslandGroup(start, cellNumber);
-    features.push({i, land, border, type, cells: cellNumber, firstCell: start, group});
+    features.push({ i, land, border, type, cells: cellNumber, firstCell: start, group });
     queue[0] = cells.f.findIndex(f => !f); // find unmarked cell
   }
 
@@ -1463,12 +1463,32 @@ function isBeach(moisture, temperature, height, cell) {
   return false;
 }
 
+function shuffle(originalArray) {
+  var array = [].concat(originalArray);
+  var currentIndex = array.length, temporaryValue, randomIndex;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
+}
+
 // assign biome id for each cell
 function defineBiomes() {
   TIME && console.time("defineBiomes");
-  const {cells} = pack;
+  const { cells } = pack;
   console.log(cells)
-  const {temp, prec} = grid.cells;
+  const { temp, prec } = grid.cells;
   cells.biome = new Uint8Array(cells.i.length); // biomes array
 
   const biomePercentages = [
@@ -1488,13 +1508,14 @@ function defineBiomes() {
   ];
   let oceanBiome = 0;
   let cellCount = 0;
+  const shuffledI = shuffle([...cells.i]);
 
-  for (const i of cells.i) {
+  for (const i of shuffledI) {
     const height = cells.h[i];
     const moisture = height < 20 ? 0 : calculateMoisture(i);
     const isOcean = height < 20;
 
-    if(isOcean) {
+    if (isOcean) {
       console.log("isOcean")
       oceanBiome += 1;
     } else {
@@ -1504,16 +1525,14 @@ function defineBiomes() {
   console.log(biomePercentages.length)
 
   let biomeCount = [];
-  for(let i = 0; i < biomePercentages.length; i++) {
+  for (let i = 0; i < biomePercentages.length; i++) {
     biomeCount.push(0);
   }
-  for(let i = 1; i < biomeCount.length; i++) {
+  for (let i = 1; i < biomeCount.length; i++) {
     biomeCount[i] = Math.round((biomePercentages[i] / 100) * cellCount);
   }
 
-  console.log(biomeCount)
-
-  for (const i of cells.i) {
+  for (const i of shuffledI) {
     const temperature = temp[cells.g[i]];
     const height = cells.h[i];
     const moisture = height < 20 ? 0 : calculateMoisture(i);
@@ -1521,25 +1540,25 @@ function defineBiomes() {
     let biomeId = -1;
 
 
-    if(isOcean) {
+    if (isOcean) {
       biomeId = 0;
     } else if (temperature < -5 && biomeCount[6] > 0) {
       biomeId = 6; // permafrost glacier biome
-    }  else if (isBeach(moisture, temperature, height, cells.t[i])) {
+    } else if (cells.h[i] >= 20 && isBeach(moisture, temperature, height, cells.t[i])) {
       biomeId = 13; // beach biome
     }
 
-    if(biomeId === -1) {
+    if (biomeId === -1) {
       let availableBiomes = []
-      for(let i = 1; i < biomeCount.length; i++) {
-          if(biomeCount[i] > 0) {
-            console.log(123)
-            availableBiomes.push(i);
-          }
+      for (let i = 1; i < biomeCount.length; i++) {
+        if (biomeCount[i] > 0) {
+          console.log(123)
+          availableBiomes.push(i);
+        }
       }
 
-      if(availableBiomes.length === 0) {
-        for(let i = 1; i < biomeCount.length; i++) {
+      if (availableBiomes.length === 0) {
+        for (let i = 1; i < biomeCount.length; i++) {
           console.log(345)
           availableBiomes.push(i);
         }
@@ -1568,7 +1587,7 @@ function defineBiomes() {
 // assess cells suitability to calculate population and rand cells for culture center and burgs placement
 function rankCells() {
   TIME && console.time("rankCells");
-  const {cells, features} = pack;
+  const { cells, features } = pack;
   cells.s = new Int16Array(cells.i.length); // cell suitability array
   cells.pop = new Float32Array(cells.i.length); // cell population array
 
@@ -1610,7 +1629,7 @@ function rankCells() {
 // generate zones
 function addZones(number = 1) {
   TIME && console.time("addZones");
-  const {cells, states, burgs} = pack;
+  const { cells, states, burgs } = pack;
   const used = new Uint8Array(cells.i.length); // to store used cells
   const zonesData = [];
 
@@ -1661,7 +1680,7 @@ function showStatistics() {
     Cultures: ${pack.cultures.length - 1}`;
 
   mapId = Date.now(); // unique map id is it's creation date number
-  mapHistory.push({seed, width: graphWidth, height: graphHeight, template: heightmap, created: mapId});
+  mapHistory.push({ seed, width: graphWidth, height: graphHeight, template: heightmap, created: mapId });
   INFO && console.log(stats);
 }
 
