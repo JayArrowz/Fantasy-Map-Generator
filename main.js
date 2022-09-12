@@ -1508,7 +1508,33 @@ function defineBiomes() {
   ];
   let oceanBiome = 0;
   let cellCount = 0;
-  const shuffledI = shuffle([...cells.i]);
+  let shuffledI = [...cells.i];
+  var chunk_size = 200;
+  const groups = shuffledI.map(function (e, i) {
+    return i % chunk_size === 0 ? shuffledI.slice(i, i + chunk_size).reverse() : null;
+  }).filter(function (e) { return e; })
+  const shuffledGroups = shuffle([...groups]);
+
+
+  const neighbours = shuffledGroups.map(e => e.map(v => [v, ...cells.c[v].map(t => cells.i[t])])).flat();
+  const copied = [].concat.apply([], neighbours);
+  shuffledI = copied.filter((e, i) => copied.indexOf(e) === i);
+
+  const biomeConstraints = [
+    null, //"Marine",0
+    { minTemp: 0, maxTemp: 25, shouldNotSurround: [5, 4], preferredSurrounding: [2, 7, 1] }, //"Plains",1
+    { minTemp: 10, maxTemp: 25, shouldNotSurround: [3], preferredSurrounding: [1, 7, 2] }, //"Forest",2
+    { minTemp: 20, maxTemp: 50, shouldNotSurround: [5, 6], preferredSurrounding: [4, 3] },//"Desert",3
+    { minTemp: 20, maxTemp: 35, shouldNotSurround: [5, 6], preferredSurrounding: [3, 4] },//"Oasis",4
+    { minTemp: -10, maxTemp: 0, shouldNotSurround: [4, 3, 1, 2], preferredSurrounding: [6, 5] },//"Snow",5
+    { minTemp: -30, maxTemp: 0, shouldNotSurround: [4, 3, 1, 3], preferredSurrounding: [5, 6] },//"Glacier",6
+    { minTemp: 0, maxTemp: 25, shouldNotSurround: [], preferredSurrounding: [1, 2, 7] },//"Swamp",7
+    { minTemp: 0, maxTemp: 50, shouldNotSurround: [], preferredSurrounding: [8] }, //"Badlands",8
+    { minTemp: 0, maxTemp: 50, shouldNotSurround: [], preferredSurrounding: [9] },//"Stone",9
+    { minTemp: -30, maxTemp: 15, shouldNotSurround: [], preferredSurrounding: [10] },//"The Void",10
+    { minTemp: -30, maxTemp: 15, shouldNotSurround: [11], preferredSurrounding: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12] },//"Moon Touched",11
+    { minTemp: 0, maxTemp: 30, shouldNotSurround: [5, 6], preferredSurrounding: [12] },//"Forbidden Forests",12
+  ];
 
   for (const i of shuffledI) {
     const height = cells.h[i];
@@ -1542,28 +1568,141 @@ function defineBiomes() {
 
     if (isOcean) {
       biomeId = 0;
-    } else if (temperature < -5 && biomeCount[6] > 0) {
-      biomeId = 6; // permafrost glacier biome
     } else if (cells.h[i] >= 20 && isBeach(moisture, temperature, height, cells.t[i])) {
       biomeId = 13; // beach biome
     }
 
-    if (biomeId === -1) {
-      let availableBiomes = []
-      for (let i = 1; i < biomeCount.length; i++) {
-        if (biomeCount[i] > 0) {
-          console.log(123)
-          availableBiomes.push(i);
-        }
+    let availableBiomes = []
+    for (let i = 1; i < biomeCount.length; i++) {
+      if (biomeCount[i] > 0) {
+        availableBiomes.push(i);
       }
+    }
+
+    if (biomeId === -1) {
+      let currentPointsPerBiome = [];
 
       if (availableBiomes.length === 0) {
-        for (let i = 1; i < biomeCount.length; i++) {
-          console.log(345)
-          availableBiomes.push(i);
-        }
+        availableBiomes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
       }
-      biomeId = availableBiomes[Math.floor(Math.random() * availableBiomes.length)];
+
+      for (let i = 0; i < availableBiomes.length; i++) {
+        const biome = availableBiomes[i];
+        let currentPoints = 0;
+        const biomeConstraintsData = biomeConstraints[biome];
+        if (temperature < biomeConstraintsData.minTemp || temperature > biomeConstraintsData.maxTemp) {
+          const midpoint = (biomeConstraintsData.minTemp) + ((biomeConstraintsData.maxTemp - biomeConstraintsData.minTemp) / 2);
+          const diffFromMidpoint = Math.abs(midpoint - temperature);
+          const points = diffFromMidpoint;
+          currentPoints -= points;
+        } else if (temperature >= biomeConstraintsData.minTemp && temperature <= biomeConstraintsData.maxTemp) {
+          currentPoints += 5;
+        }
+
+        currentPointsPerBiome.push({
+          biome: biome,
+          points: currentPoints
+        })
+      }
+
+      biomeId = currentPointsPerBiome.sort((a, b) => b.points - a.points)[0].biome;
+    }
+
+    biomeCount[biomeId] -= 1;
+    cells.biome[i] = biomeId;
+  }
+
+  oceanBiome = 0;
+  cellCount = 0;
+
+  for (const i of shuffledI) {
+    const height = cells.h[i];
+    const moisture = height < 20 ? 0 : calculateMoisture(i);
+    const isOcean = height < 20;
+
+    if (isOcean) {
+      console.log("isOcean")
+      oceanBiome += 1;
+    } else {
+      cellCount += 1;
+    }
+  }
+  console.log(biomePercentages.length)
+  for (let i = 1; i < biomeCount.length; i++) {
+    biomeCount[i] = Math.round((biomePercentages[i] / 100) * cellCount);
+  }
+
+  for (const i of shuffledI) {
+    const temperature = temp[cells.g[i]];
+    const height = cells.h[i];
+    const moisture = height < 20 ? 0 : calculateMoisture(i);
+    const isOcean = height < 20;
+    let biomeId = -1;
+
+
+    if (isOcean) {
+      biomeId = 0;
+    } else if (cells.h[i] >= 20 && isBeach(moisture, temperature, height, cells.t[i])) {
+      biomeId = 13; // beach biome
+    }
+
+    let availableBiomes = []
+    for (let i = 1; i < biomeCount.length; i++) {
+      if (biomeCount[i] > 0) {
+        availableBiomes.push(i);
+      }
+    }
+
+    if (biomeId === -1) {
+      let currentPointsPerBiome = [];
+      if (availableBiomes.length === 0) {
+        availableBiomes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      }
+      for (let i = 0; i < availableBiomes.length; i++) {
+        const biome = availableBiomes[i];
+        let currentPoints = 0;
+        const biomeConstraintsData = biomeConstraints[biome];
+        if (temperature < biomeConstraintsData.minTemp || temperature > biomeConstraintsData.maxTemp) {
+          const midpoint = (biomeConstraintsData.minTemp) + ((biomeConstraintsData.maxTemp - biomeConstraintsData.minTemp) / 2);
+          const diffFromMidpoint = Math.abs(midpoint - temperature);
+          const points = diffFromMidpoint;
+          currentPoints -= points;
+        } else if (temperature >= biomeConstraintsData.minTemp && temperature <= biomeConstraintsData.maxTemp) {
+          currentPoints += 5;
+        }
+
+        if (biomeConstraintsData.shouldNotSurround.length > 0) {
+          for (let j = 0; j < biomeConstraintsData.shouldNotSurround.length; j++) {
+            const shouldNotSurround = biomeConstraintsData.shouldNotSurround[j];
+            const surroundingCells = cells.c[i];
+            for (const surroundingCell of surroundingCells) {
+              if (cells.biome[cells.i[surroundingCell]] === shouldNotSurround) {
+                currentPoints -= 5000;
+              }
+            }
+          }
+        }
+
+
+        if (biomeConstraintsData.preferredSurrounding.length > 0) {
+          for (let j = 0; j < biomeConstraintsData.preferredSurrounding.length; j++) {
+            const preferredSurrounding = biomeConstraintsData.preferredSurrounding[j];
+            const surroundingCells = cells.c[i];
+            for (const surroundingCell of surroundingCells) {
+              if (cells.biome[cells.i[surroundingCell]] === preferredSurrounding) {
+                currentPoints += 200;
+              }
+            }
+          }
+        }
+
+        currentPointsPerBiome.push({
+          biome: biome,
+          points: currentPoints
+        })
+      }
+
+      biomeId = currentPointsPerBiome.sort((a, b) => b.points - a.points)[0].biome;
     }
 
     biomeCount[biomeId] -= 1;
